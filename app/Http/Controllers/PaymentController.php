@@ -26,7 +26,12 @@ class PaymentController extends Controller
     public function store(PaymentStoreRequest $request)
     {
         try {
-            $this->paymentOption->store(auth()->id(), $request->all());
+            if($request->payment_type === 'wire') {
+                $payment = new Wire();
+            } else {
+                $payment = new Payoneer();
+            }
+            $payment->store(auth()->id(), $request->all());
             return redirect()->route('payment.show', $request->payment_type)->with('success', 'Payment details saved successfully.');
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
